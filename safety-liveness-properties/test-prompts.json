@@ -1,0 +1,52 @@
+{
+  "skill": "safety-liveness-properties",
+  "version": "0.1.0",
+  "source_book": "Designing Data-Intensive Applications — Martin Kleppmann",
+  "darwin_compatible": true,
+  "test_cases": [
+    {
+      "id": "should-trigger-01",
+      "type": "should_trigger",
+      "prompt": "我正在设计一个分布式锁服务，怎么向团队证明它不会脑裂，也不会在节点故障后永久死锁？",
+      "expected_behavior": "应激活 safety-liveness-properties，将'不会脑裂'拆解为 Safety 属性（互斥不变量），将'不会永久死锁'拆解为 Liveness 属性（最终释放/恢复），并推荐 fencing token、超时机制、模型检查或不变量推导作为验证方法。",
+      "notes": "典型的 Safety+Liveness 并发协议正确性验证场景，用户语言中同时出现 Safety 信号（不会脑裂）和 Liveness 信号（不会永久死锁）。"
+    },
+    {
+      "id": "should-trigger-02",
+      "type": "should_trigger",
+      "prompt": "我们的微服务在跨可用区部署时，网络偶尔抖动会导致大量 RPC 超时。超时时间设太短会误杀正常请求，设太长又拖垮整体可用性。怎么设计超时和重试策略？",
+      "expected_behavior": "应激活 safety-liveness-properties，将超时/重试识别为 Liveness（可用性/最终响应）的工程实现，同时指出重复请求对 Safety（幂等性、不可双花）的潜在威胁，并给出指数退避、熔断、幂等键等设计建议。",
+      "notes": "Liveness 的工程落地场景（超时与重试），且涉及 Safety/Liveness 的耦合与冲突。"
+    },
+    {
+      "id": "should-trigger-03",
+      "type": "should_trigger",
+      "prompt": "在 CAP 定理里，我们说一致性是 C、可用性是 A。但我在想，能不能用更形式化的语言来描述这两种属性？比如模型检查能验证什么，不能验证什么？",
+      "expected_behavior": "应激活 safety-liveness-properties，解释 CAP 中的 C（线性一致性）属于 Safety 属性，A（可用性）属于 Liveness 属性；说明模型检查/TLA+ 对 Safety 的验证能力（不变量、状态空间搜索）和对 Liveness 验证的依赖（时序逻辑、公平性假设、超时边界）。",
+      "notes": "用户主动寻求形式化分类语言，将 CAP 与 Safety/Liveness 联系起来，是核心触发信号。"
+    },
+    {
+      "id": "should-not-trigger-01",
+      "type": "should_not_trigger",
+      "prompt": "Python 的 threading.Lock 和 RLock 有什么区别？该在什么场景下用 RLock？",
+      "expected_behavior": "不应激活本 skill，因为这是一个纯编程语法/并发原语使用问题，不涉及分布式或并发协议的正确性属性分类与验证。",
+      "notes": "诱饵：涉及并发关键词（Lock/RLock），但本质是语言特性问答，与 Safety/Liveness 框架无关。"
+    },
+    {
+      "id": "should-not-trigger-02",
+      "type": "should_not_trigger",
+      "prompt": "我想优化一个单线程的图像处理算法，主要是减少内存拷贝和 SIMD 向量化，有什么建议？",
+      "expected_behavior": "不应激活本 skill，因为该场景是单一节点的本地算法性能优化，不涉及分布式/并发系统的正确性、一致性或可用性。",
+      "notes": "诱饵：系统优化话题，但完全不在分布式/并发/容错领域内。"
+    },
+    {
+      "id": "edge-01",
+      "type": "edge_case",
+      "prompt": "我们在做混沌测试，计划随机杀掉 Pod 来验证系统的韧性。这种情况下，Safety 和 Liveness 分别该怎么测？",
+      "expected_behavior": "应激活本 skill。Safety 测试：注入故障后检查不变量是否被破坏（如脑裂、双主、数据丢失）；Liveness 测试：检查系统在有限时间内是否自动恢复（如重新选举、流量切换、请求成功率回升）。同时提醒用户区分测试目标，不要混为一谈。",
+      "notes": "边界：混沌测试本身是一个工程实践话题，但用户明确要求用 Safety/Liveness 框架进行分类和验证，属于 skill 的合理延伸。"
+    }
+  ],
+  "minimum_pass_rate": 0.8,
+  "notes": "至少 3 条 should_trigger + 2 条 should_not_trigger + 1 条 edge_case。全部 should_not_trigger 必须通过 (诱饵容错为 0)。"
+}

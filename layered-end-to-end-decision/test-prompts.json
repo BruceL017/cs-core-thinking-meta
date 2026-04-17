@@ -1,0 +1,52 @@
+{
+  "skill": "layered-end-to-end-decision",
+  "version": "0.1.0",
+  "source_book": "Computer Networking: A Top-Down Approach — Kurose & Ross; SICP — Abelson & Sussman; OSTEP — Arpaci-Dusseau",
+  "darwin_compatible": true,
+  "test_cases": [
+    {
+      "id": "should-trigger-01",
+      "type": "should_trigger",
+      "prompt": "我们系统里已经在 API Gateway 做了请求参数的格式校验，后端微服务还需要再做一次校验吗？这是不是冗余？",
+      "expected_behavior": "应激活 layered-end-to-end-decision，应用端到端原则分析：Gateway 校验无法替代后端校验，因为 Gateway 不理解业务语义，伪造请求可能绕过 Gateway 直接打到后端。应给出明确的分层职责建议。",
+      "notes": "典型的分层职责决策问题，涉及端到端原则（Gateway 不能保证端到端正确性）和分层冗余的讨论。"
+    },
+    {
+      "id": "should-trigger-02",
+      "type": "should_trigger",
+      "prompt": "TCP 不是已经保证可靠传输了吗？为什么我们的消息队列 SDK 还要在应用层自己做幂等和去重？",
+      "expected_behavior": "应激活 layered-end-to-end-decision，解释 TCP 的可靠字节流语义与应用层消息幂等语义的不匹配：TCP 保证的是字节不丢、按序，但不保证消息只被处理一次，也不覆盖应用崩溃、重复消费、网络分区后的语义。应建议在应用层显式实现幂等。",
+      "notes": "核心触发信号：'底层已经保证了 X，上层为什么还要做'——这正是端到端原则要纠正的误解。"
+    },
+    {
+      "id": "should-trigger-03",
+      "type": "should_trigger",
+      "prompt": "我们在做一个实时音视频系统，现在用 TCP 传输媒体流，但延迟抖动很大。是不是应该在 UDP 之上自己做一个轻量级的可靠传输层？这个分层决策怎么分析？",
+      "expected_behavior": "应激活 layered-end-to-end-decision，分析 TCP 的语义（可靠、按序交付）与实时音视频需求（低延迟、可容忍少量丢包）的错配，建议评估在 UDP 之上构建应用层控制协议（如 QUIC 的不可靠流或自研 RTP/RTCP），并量化新增分层的代价。",
+      "notes": "典型的语义不匹配导致的分层重构决策，涉及底层协议替换 vs 上层补适配层的权衡。"
+    },
+    {
+      "id": "should-not-trigger-01",
+      "type": "should_not_trigger",
+      "prompt": "帮我选一个 Redis 集群的部署拓扑，是三主三从还是六主零从？",
+      "expected_behavior": "不应激活本 skill，因为这是一个纯分布式系统部署/容量规划问题，不涉及跨层功能放置或端到端原则。应使用并发与容错设计原则或数据系统可靠性评估相关技能。",
+      "notes": "诱饵：涉及网络和分布式系统，但核心问题是节点拓扑和容错配置，而非分层抽象决策。"
+    },
+    {
+      "id": "should-not-trigger-02",
+      "type": "should_not_trigger",
+      "prompt": "我想优化一个 Python 函数的执行速度，是用列表推导式还是 map/filter？",
+      "expected_behavior": "不应激活本 skill，因为这是一个单模块内部的实现细节优化问题，完全不涉及系统分层、协议栈或跨层边界决策。",
+      "notes": "诱饵：提到'优化'和'实现选择'，但属于语言层面的微观优化，与分层抽象无关。"
+    },
+    {
+      "id": "edge-01",
+      "type": "edge_case",
+      "prompt": "我们在边缘节点（CDN Edge）部署了一些业务逻辑，比如 A/B 测试分流和个性化推荐。这算不算违反了端到端原则？还是说在边缘计算场景下，端到端原则需要重新理解？",
+      "expected_behavior": "可以激活 layered-end-to-end-decision，但需特别说明边界条件：边缘节点下沉部分功能（如分流、缓存）是对端到端原则的务实修正，而非简单违反。应分析哪些功能可以下沉（无状态、可局部决策）哪些不能（需要全局一致性、端系统独有状态），并指出教材对边缘计算场景覆盖不足。",
+      "notes": "边界：边缘计算模糊了'端系统'和'中间层'的边界，是端到端原则在现代架构中的灰色地带。"
+    }
+  ],
+  "minimum_pass_rate": 0.8,
+  "notes": "至少 3 条 should_trigger + 2 条 should_not_trigger + 1 条 edge_case。全部 should_not_trigger 必须通过 (诱饵容错为 0)。"
+}

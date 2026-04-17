@@ -1,0 +1,52 @@
+{
+  "skill": "virtualization-resource-abstraction",
+  "version": "0.1.0",
+  "source_book": "Operating Systems: Three Easy Pieces — Arpaci-Dusseau & Arpaci-Dusseau; Computer Architecture: A Quantitative Approach — Hennessy & Patterson",
+  "darwin_compatible": true,
+  "test_cases": [
+    {
+      "id": "should-trigger-01",
+      "type": "should_trigger",
+      "prompt": "我在设计一个多租户容器平台，想让每个用户都以为自己有独占的 CPU 和内存。现在纠结是用 KVM 虚拟机还是直接跑在 Docker 容器里，隔离性和性能怎么权衡？",
+      "expected_behavior": "应激活 virtualization-resource-abstraction，并引导用户分析 CPU/内存虚拟化的隔离级别（硬件级 vs 软件级）、LDE 与 namespace/cgroup 的差异、以及 VM Exit 与上下文切换的开销。",
+      "notes": "正面场景：明确涉及物理资源（CPU、内存）到虚拟抽象的转换，需要在隔离性与性能之间做架构权衡。"
+    },
+    {
+      "id": "should-trigger-02",
+      "type": "should_trigger",
+      "prompt": "xv6 的上下文切换为什么需要保存所有寄存器？能不能只保存一部分？另外，定时器中断的周期设多长比较合理，太短会不会导致陷入内核太频繁？",
+      "expected_behavior": "应激活 virtualization-resource-abstraction，解释 CPU 虚拟化中 LDE 与 trap 的关系、上下文切换的完整状态保存必要性、以及时间片长度对陷入频率和缓存局部性的影响。",
+      "notes": "正面场景：直接讨论 CPU 虚拟化的核心机制（上下文切换、定时器中断、陷入-模拟），属于本 skill 的专业细节。"
+    },
+    {
+      "id": "should-trigger-03",
+      "type": "should_trigger",
+      "prompt": "我们系统的页表遍历延迟很高，4 级页表在大量随机访问下 TLB miss 严重。我在考虑用大页（huge page）或者 EPT 优化，但不确定会不会引入新的问题。",
+      "expected_behavior": "应激活 virtualization-resource-abstraction，分析内存虚拟化中多级页表与 TLB 的行为、大页和 EPT 的适用条件、以及可能带来的内存碎片或 VM Exit 开销增加。",
+      "notes": "正面场景：聚焦内存虚拟化的具体实现细节（页表、TLB、EPT、大页），需要本 skill 的框架进行诊断。"
+    },
+    {
+      "id": "should-not-trigger-01",
+      "type": "should_not_trigger",
+      "prompt": "什么是虚拟内存？能给我简单解释一下页表的作用吗？",
+      "expected_behavior": "不应激活本 skill，因为这是一个纯信息查询，不涉及资源共享、抽象转换或设计决策。应直接给出概念性解释。",
+      "notes": "诱饵: 话题包含"虚拟内存"和"页表"，但只是基础概念查询，没有设计场景。"
+    },
+    {
+      "id": "should-not-trigger-02",
+      "type": "should_not_trigger",
+      "prompt": "我的单进程 Python 程序内存占用太高了，怎么优化？已经排除了内存泄漏，主要是 pandas 读取大 CSV 导致的。",
+      "expected_behavior": "不应激活本 skill，因为问题仅涉及单一进程的应用层内存优化，不涉及多用户/多进程的资源共享或虚拟化抽象层设计。",
+      "notes": "诱饵: 涉及"内存"话题，但属于应用层优化，与虚拟化抽象无关。"
+    },
+    {
+      "id": "edge-01",
+      "type": "edge_case",
+      "prompt": "我在设计一个 Serverless 平台，函数实例启动时间要求极短，现在考虑用 Firecracker microVM 替代 Docker 容器。这个选择怎么分析？",
+      "expected_behavior": "应激活 virtualization-resource-abstraction，因为 Firecracker microVM 本质上是硬件虚拟化抽象（KVM）的轻量形态，问题涉及"如何在隔离性与启动速度之间选择虚拟化抽象层级"。同时可以指出这是教材覆盖较少的现代技术，需要结合本 skill 的核心原则（LDE、页表、VM Exit）进行推断。",
+      "notes": "边界: 涉及较新的 microVM 技术，教材未深入覆盖，但核心权衡（硬件虚拟化 vs 容器、隔离级别 vs 启动开销）完全符合本 skill 的方法论框架。"
+    }
+  ],
+  "minimum_pass_rate": 0.8,
+  "notes": "至少 3 条 should_trigger + 2 条 should_not_trigger + 1 条 edge_case。全部 should_not_trigger 必须通过 (诱饵容错为 0)。"
+}

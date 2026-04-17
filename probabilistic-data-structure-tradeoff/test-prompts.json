@@ -1,0 +1,52 @@
+{
+  "skill": "probabilistic-data-structure-tradeoff",
+  "version": "0.1.0",
+  "source_book": "Mathematics for Computer Science — Lehman et al. / Advanced Algorithms and Data Structures",
+  "darwin_compatible": true,
+  "test_cases": [
+    {
+      "id": "should-trigger-01",
+      "type": "should_trigger",
+      "prompt": "我有 10 亿条 URL 需要去重，内存只有 2GB，能不能允许一点点误判，用什么数据结构最好？Bloom filter 的参数该怎么设？",
+      "expected_behavior": "应激活 probabilistic-data-structure-tradeoff，执行 E 步骤：明确查询语义（成员查询）、量化约束（n=1e9, m=2GB）、推荐 Bloom filter 并给出 k 和 p 的参数公式，最后警告假阳性监控与重建策略。",
+      "notes": "典型场景：海量数据 + 内存受限 + 允许假阳性，需要 Bloom filter 的参数化设计。"
+    },
+    {
+      "id": "should-trigger-02",
+      "type": "should_trigger",
+      "prompt": "我们要做一个‘附近的人’功能，数据量在千万级，用户位置是经纬度。B-tree 好像不太行，R-tree 是不是更合适？它和 LSH 有什么区别？",
+      "expected_behavior": "应激活 probabilistic-data-structure-tradeoff，执行 E 步骤：解释 B-tree 在一维排序上的局限，推荐 R-tree 利用 MBR 处理空间局部性，同时对比 R-tree（精确范围查询）与 LSH（近似最近邻）的适用边界，并讨论 MBR 重叠对性能的影响。",
+      "notes": "典型场景：多维空间索引选型，涉及空间局部性与近似算法的权衡。"
+    },
+    {
+      "id": "should-trigger-03",
+      "type": "should_trigger",
+      "prompt": "红黑树实现太复杂了，代码里 bug 很多。有没有更简单、期望性能差不多的平衡树？Treap 靠谱吗，它的期望高度怎么证明？",
+      "expected_behavior": "应激活 probabilistic-data-structure-tradeoff，执行 E 步骤：推荐 Treap 作为实现简洁的替代方案，解释随机优先级 + BST/堆双序维护机制，并用期望线性性说明期望高度为 O(log n)，最后对比实现复杂度与红黑树。",
+      "notes": "典型场景：资源/人力受限下用随机化简化实现，涉及期望线性性的证明思维。"
+    },
+    {
+      "id": "should-not-trigger-01",
+      "type": "should_not_trigger",
+      "prompt": "我们的支付系统需要对账，要求 100% 精确匹配每一笔交易，能不能用 HyperLogLog 来统计交易笔数以节省内存？",
+      "expected_behavior": "不应激活本 skill 的概率结构推荐步骤，因为金融对账要求 100% 精确性。应明确拒绝 HyperLogLog，说明概率数据结构在精确性不可妥协场景中的风险（ce26）。",
+      "notes": "诱饵：提到了概率数据结构（HyperLogLog）和节省内存，但业务场景（金融对账）完全不允许任何近似误差。"
+    },
+    {
+      "id": "should-not-trigger-02",
+      "type": "should_not_trigger",
+      "prompt": "请给我讲一下 Bloom filter 的历史发展，以及 Burton Bloom 是在哪一年提出这个概念的？",
+      "expected_behavior": "不应激活本 skill，因为这是一个纯信息查询（历史事实），而非需要在具体约束下进行空间-时间-正确性权衡的设计决策。",
+      "notes": "诱饵：提到了 Bloom filter，但用户只是询问历史背景，没有涉及设计、选型或参数化。"
+    },
+    {
+      "id": "edge-01",
+      "type": "edge_case",
+      "prompt": "我想用 Bloom filter 做缓存穿透防护，但下游是 Redis 缓存，如果 Bloom filter 报假阳性，最多就是多查一次 Redis，业务上完全可以接受。这种情况下 Bloom filter 的 m 和 k 怎么选？",
+      "expected_behavior": "应激活 probabilistic-data-structure-tradeoff。虽然场景中有缓存（Redis），但核心决策仍然是：在允许假阳性（多一次 Redis 查询）的前提下，用概率结构节省内存/减少无效请求。agent 应量化评估假阳性的实际代价（一次 Redis RTT），并给出 m、k 的参数公式与重建策略。",
+      "notes": "边界：假阳性的业务代价极低（仅多一次缓存查询），容易被误判为不需要 skill；但实际上这正是概率数据结构最典型的适用场景之一，需要完整的参数化设计。"
+    }
+  ],
+  "minimum_pass_rate": 0.8,
+  "notes": "至少 3 条 should_trigger + 2 条 should_not_trigger + 1 条 edge_case。全部 should_not_trigger 必须通过 (诱饵容错为 0)。"
+}

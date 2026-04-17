@@ -1,0 +1,52 @@
+{
+  "skill": "crash-recovery-persistence-design",
+  "version": "0.1.0",
+  "source_book": "CS Core Thinking Meta-Framework — Hennessy & Patterson, Kurose & Ross, Kleppmann, Lehman et al., Arpaci-Dusseau, Stonebraker et al., Abelson & Sussman, La Rocca",
+  "darwin_compatible": true,
+  "test_cases": [
+    {
+      "id": "should-trigger-01",
+      "type": "should_trigger",
+      "prompt": "I'm designing a new embedded database and need to decide between WAL with ARIES-style recovery and a log-structured merge approach. How do I evaluate the crash recovery guarantees and write amplification tradeoffs?",
+      "expected_behavior": "应激活 crash-recovery-persistence-design, 并引导用户通过 E 步骤 1-6 比较 WAL/ARIES 与 LSM/LFS 在原子性范围、恢复协议、写放大和 GC 开销上的差异，给出量化权衡框架。",
+      "notes": "典型触发：明确提到 WAL、ARIES、LFS/LSM、write amplification、crash recovery guarantees 等专业术语，属于本 skill 的核心设计场景。"
+    },
+    {
+      "id": "should-trigger-02",
+      "type": "should_trigger",
+      "prompt": "Our file system gets corrupted on power loss. Should we use metadata journaling or full data journaling, and what's the exact fsync sequence to guarantee directory entry durability?",
+      "expected_behavior": "应激活本 skill, 并执行 E 步骤 3（细化日志模式与 fsync 策略）和步骤 4（恢复协议），给出 metadata journaling vs full data journaling 的利弊和具体 fsync 顺序建议。",
+      "notes": "典型触发：涉及文件系统断电损坏、metadata journaling、fsync 顺序、directory entry durability，直接对应 OSTEP 崩溃一致性内容。"
+    },
+    {
+      "id": "should-trigger-03",
+      "type": "should_trigger",
+      "prompt": "In a copy-on-write filesystem like Btrfs, how do we handle partial write failures during a tree node update? Do we still need a write-ahead log for the superblock?",
+      "expected_behavior": "应激活本 skill, 并解释 COW 文件系统如何通过根指针原子切换避免部分写不一致，同时说明 superblock/uberblock 的 WAL 或双缓冲策略。",
+      "notes": "典型触发：提到 COW、Btrfs、partial write failures、tree node update、superblock WAL，属于持久化设计框架中的 COW 范式。"
+    },
+    {
+      "id": "should-not-trigger-01",
+      "type": "should_not_trigger",
+      "prompt": "My PostgreSQL query is doing a full table scan on a 100M row table. How do I add a B-tree index to speed up the WHERE clause?",
+      "expected_behavior": "不应激活本 skill, 因为这是一个纯查询优化/索引设计问题（对应 ce16），与崩溃恢复、WAL、持久化协议无关。",
+      "notes": "诱饵: 提到了 PostgreSQL（数据库）和 full table scan，但问题核心是索引优化，不涉及存储引擎的崩溃恢复或日志设计。"
+    },
+    {
+      "id": "should-not-trigger-02",
+      "type": "should_not_trigger",
+      "prompt": "How do I shard my microservices across AWS regions for lower latency and better fault tolerance?",
+      "expected_behavior": "不应激活本 skill, 因为问题聚焦于分布式网络架构和地理分片，没有涉及文件系统、数据库持久化层或磁盘崩溃恢复策略。",
+      "notes": "诱饵: 提到了 fault tolerance 和 AWS，但属于分布式系统/网络架构范畴，没有 WAL、RAID、fsync、metadata journaling 等持久化信号。"
+    },
+    {
+      "id": "edge-01",
+      "type": "edge_case",
+      "prompt": "I need to choose between SQLite's WAL mode and DELETE journaling for a desktop application with occasional power failures. Which one is safer and do I still need to call fsync manually?",
+      "expected_behavior": "应激活本 skill，但简化执行：将 ARIES/LFS 等工业级框架降级为 SQLite 特定语境，解释 WAL mode 与 DELETE journaling 的崩溃恢复语义，并给出桌面应用级别的 fsync 建议。",
+      "notes": "边界: 问题确实涉及 WAL、journaling、fsync 和崩溃恢复，但规模是桌面 SQLite 应用，远小于 ARIES/数据库引擎级别的设计。属于 skill 的轻量应用边界。"
+    }
+  ],
+  "minimum_pass_rate": 0.8,
+  "notes": "至少 3 条 should_trigger + 2 条 should_not_trigger + 1 条 edge_case。全部 should_not_trigger 必须通过 (诱饵容错为 0)。"
+}

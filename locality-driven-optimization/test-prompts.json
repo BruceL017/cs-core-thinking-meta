@@ -1,0 +1,52 @@
+{
+  "skill": "locality-driven-optimization",
+  "version": "0.1.0",
+  "source_book": "Computer Architecture: A Quantitative Approach — Hennessy & Patterson; Advanced Algorithms and Data Structures — La Rocca; Operating Systems: Three Easy Pieces — Arpaci-Dusseau",
+  "darwin_compatible": true,
+  "test_cases": [
+    {
+      "id": "should-trigger-01",
+      "type": "should_trigger",
+      "prompt": "我正在为一个地理信息系统选择空间索引，数据是二维POI点集合。候选方案有B-tree（把经纬度拼接为一维键）和R-tree。从局部性角度，我应该怎么决策？",
+      "expected_behavior": "应激活 locality-driven-optimization，分析多维空间局部性，指出B-tree线性化会破坏空间邻近性，R-tree通过MBR保留局部性，推荐R-tree并解释分支因子与缓存行利用的关系。",
+      "notes": "典型的多维局部性数据结构选型问题，直接触发skill的核心场景。"
+    },
+    {
+      "id": "should-trigger-02",
+      "type": "should_trigger",
+      "prompt": "我的后台服务需要维护一个Top-K优先级队列，候选是二叉堆和d-way heap。数据量很大，会超出L3缓存。这种情况下分支因子应该怎么选？",
+      "expected_behavior": "应激活 locality-driven-optimization，分析d-way heap的短宽结构如何减少cache miss和page fault，给出分支因子与缓存行大小（如64B）和元素大小的匹配建议。",
+      "notes": "AADS中d-ary heap的经典应用场景，直接关联分支因子与缓存局部性。"
+    },
+    {
+      "id": "should-trigger-03",
+      "type": "should_trigger",
+      "prompt": "分析型数据库的存储引擎设计，行存和列存在缓存行为上有什么本质差异？在什么访问模式下列存能利用空间局部性获得数量级提升？",
+      "expected_behavior": "应激活 locality-driven-optimization，解释行存的行内字段混合导致缓存污染，列存的同列连续存储带来顺序预取优势，指出分析查询（扫描少数列、大量聚合）是列存的最佳触发条件。",
+      "notes": "存储布局与空间局部性的经典决策，覆盖c13案例。"
+    },
+    {
+      "id": "should-not-trigger-01",
+      "type": "should_not_trigger",
+      "prompt": "帮我写一个Python脚本把CSV文件转换成JSON格式。",
+      "expected_behavior": "不应激活本skill，因为这是一个纯脚本编写/数据格式转换任务，不涉及缓存设计、数据结构选型或存储系统优化。",
+      "notes": "诱饵：日常编程任务，与局部性优化完全无关。"
+    },
+    {
+      "id": "should-not-trigger-02",
+      "type": "should_not_trigger",
+      "prompt": "我的分布式系统出现了脑裂，应该怎么设计共识协议来解决？",
+      "expected_behavior": "不应激活本skill，因为问题核心是分布式一致性与容错，属于共识协议/故障恢复领域，与局部性驱动的存储和算法优化无关。",
+      "notes": "诱饵：分布式系统故障，虽然可能涉及性能，但核心决策与局部性无关。"
+    },
+    {
+      "id": "edge-01",
+      "type": "edge_case",
+      "prompt": "我需要优化一个图遍历算法，目前用邻接表实现。虽然邻接表的节点分散在内存中导致缓存未命中高，但图的边数是动态增长的。在局部性优化和动态扩展性之间怎么权衡？",
+      "expected_behavior": "可以激活本skill，但回答必须强调边界条件：若图是动态增长的，强行改为CSR等紧凑结构会牺牲插入性能；建议采用混合策略（如分块邻接表、log-structured edge storage）或仅在查询阶段将热区数据压缩为连续数组，同时提醒用户评估工作集大小以避免thrashing。",
+      "notes": "边界：局部性优化与动态扩展性冲突，需要 nuanced 的权衡而非简单推荐最优局部性方案。"
+    }
+  ],
+  "minimum_pass_rate": 0.8,
+  "notes": "至少 3 条 should_trigger + 2 条 should_not_trigger + 1 条 edge_case。全部 should_not_trigger 必须通过 (诱饵容错为 0)。"
+}

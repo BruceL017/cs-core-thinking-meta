@@ -1,0 +1,52 @@
+{
+  "skill": "distributed-consistency-decision",
+  "version": "0.1.0",
+  "source_book": "《Designing Data-Intensive Applications》— Martin Kleppmann",
+  "darwin_compatible": true,
+  "test_cases": [
+    {
+      "id": "should-trigger-01",
+      "type": "should_trigger",
+      "prompt": "我们在设计一个跨三地多活的订单系统，技术团队在争论该用 CP 还是 AP。如果分区时优先保证可用性，会不会出现重复下单？",
+      "expected_behavior": "应激活 distributed-consistency-decision，先澄清订单系统对唯一性约束的强需求，然后应用 PACELC 矩阵指出订单创建必须走 CP+Consistency（线性一致性或共识），并解释为何 AP 会导致重复下单风险。",
+      "notes": "典型触发：明确提到 CP/AP 选择，且涉及核心业务一致性约束。"
+    },
+    {
+      "id": "should-trigger-02",
+      "type": "should_trigger",
+      "prompt": "能不能用最终一致性来做分布式锁？我们用 Redis 主从复制做锁，主节点挂掉后从节点晋升，结果两个客户端同时拿到了锁，这是怎么回事？",
+      "expected_behavior": "应激活 distributed-consistency-decision，明确指出分布式锁必须用线性一致性存储（如 Redis Redlock 的争议、ZooKeeper/etcd 的共识机制），解释最终一致性为何会导致脑裂和双锁持有，并给出正确实现路径。",
+      "notes": "典型触发：将最终一致性误用于强一致性场景，且涉及具体故障现象。"
+    },
+    {
+      "id": "should-trigger-03",
+      "type": "should_trigger",
+      "prompt": "我们的微服务架构里有几个跨库操作，团队在纠结用 2PC 还是 Saga。2PC 感觉太重，Saga 的补偿逻辑又怕写不好。有没有决策框架？",
+      "expected_behavior": "应激活 distributed-consistency-decision，先询问业务是否可接受补偿语义和长事务，然后对比 2PC（阻塞、协调者单点、延迟高）与 Saga（最终一致、补偿复杂、非隔离），根据业务容错度给出推荐。",
+      "notes": "典型触发：在分布式事务方案之间做权衡，需要 PACELC 和一致性成本的框架指导。"
+    },
+    {
+      "id": "should-not-trigger-01",
+      "type": "should_not_trigger",
+      "prompt": "什么是 CAP 定理？能给我通俗解释一下吗？",
+      "expected_behavior": "不应激活本 skill，因为这是一个纯概念查询，没有具体的系统设计场景、决策需求或技术选型困境。",
+      "notes": "诱饵: 纯概念定义查询，缺乏 A2 中要求的决策/设计/故障排查情境。"
+    },
+    {
+      "id": "should-not-trigger-02",
+      "type": "should_not_trigger",
+      "prompt": "我们的 MySQL 单库查询慢，想加个 Redis 缓存。Redis 和 Memcached 哪个更适合我们？",
+      "expected_behavior": "不应激活本 skill，因为这是一个单节点缓存选型问题，不涉及分布式一致性级别、多副本复制策略或 CAP/PACELC 权衡。",
+      "notes": "诱饵: 缓存技术选型但完全不涉及一致性模型、分区容错或跨节点复制。"
+    },
+    {
+      "id": "edge-01",
+      "type": "edge_case",
+      "prompt": "我们在做一个全球排行榜系统，要求实时更新但允许秒级延迟。现在用 Redis Cluster，偶尔不同节点读到的排名不一样。这是该换一致性协议，还是接受最终一致性就够了？",
+      "expected_behavior": "应激活 distributed-consistency-decision，因为用户正在分布式缓存场景下评估一致性级别。agent 应澄清"秒级延迟可接受"和"排行榜是否涉及奖金发放或唯一性约束"：若只是展示，则因果一致性/最终一致性+合并策略即可；若涉及奖励结算，则关键操作必须回退到线性一致性存储。",
+      "notes": "边界: 场景涉及分布式缓存和轻微不一致，但业务对一致性的容忍度处于灰色地带，需要进一步澄清才能下结论。"
+    }
+  ],
+  "minimum_pass_rate": 0.8,
+  "notes": "至少 3 条 should_trigger + 2 条 should_not_trigger + 1 条 edge_case。全部 should_not_trigger 必须通过 (诱饵容错为 0)。"
+}

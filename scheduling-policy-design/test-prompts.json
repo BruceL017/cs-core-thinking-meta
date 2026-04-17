@@ -1,0 +1,52 @@
+{
+  "skill": "scheduling-policy-design",
+  "version": "0.1.0",
+  "source_book": "Operating Systems: Three Easy Pieces — Arpaci-Dusseau",
+  "darwin_compatible": true,
+  "test_cases": [
+    {
+      "id": "should-trigger-01",
+      "type": "should_trigger",
+      "prompt": "我们有一个批处理系统，作业长度差异很大，目标是降低平均等待时间。该用 SJF 还是 RR？",
+      "expected_behavior": "应激活 scheduling-policy-design，并引导用户分析运行时间分布和主导指标（周转时间 vs 响应时间），推导是否适合 SJF/SRTF 或需要其他策略。",
+      "notes": "典型调度策略选型场景，涉及 SJF 与 RR 的比较，符合 skill 核心触发条件。"
+    },
+    {
+      "id": "should-trigger-02",
+      "type": "should_trigger",
+      "prompt": "多核调度怎么保证缓存亲和性？我们在设计一个线程池，纠结用单队列还是多队列。",
+      "expected_behavior": "应激活 scheduling-policy-design，并讨论 SQMS 与 MQMS 的权衡、缓存亲和性（Cache Affinity）的重要性，以及负载均衡与任务迁移策略。",
+      "notes": "多处理器调度是 skill 推导链的第 5 步，涉及缓存亲和性和队列架构选择。"
+    },
+    {
+      "id": "should-trigger-03",
+      "type": "should_trigger",
+      "prompt": "CFS 的 vruntime 是怎么算的？我们在技术评审里需要解释为什么用 CFS 而不是简单的时间片轮转。",
+      "expected_behavior": "应激活 scheduling-policy-design，解释 vruntime 的计算公式和红黑树维护机制，并基于公平性指标和工作负载假设推导为何选择 CFS。",
+      "notes": "用户需要基于指标和假设进行量化论证，属于 skill 的典型应用场景。"
+    },
+    {
+      "id": "should-not-trigger-01",
+      "type": "should_not_trigger",
+      "prompt": "什么是 CFS？",
+      "expected_behavior": "不应激活本 skill，因为这是一个纯信息查询，没有选型、设计或权衡需求。",
+      "notes": "诱饵: 纯概念定义查询，缺少工作负载假设、指标冲突或策略推导的语境。"
+    },
+    {
+      "id": "should-not-trigger-02",
+      "type": "should_not_trigger",
+      "prompt": "我下周有三个会议和两个 deadline，帮我排一下日程。",
+      "expected_behavior": "不应激活本 skill，因为这是个人时间管理，与操作系统/任务调度技术无关。",
+      "notes": "诱饵: 非技术语境下的"调度"一词滥用。"
+    },
+    {
+      "id": "edge-01",
+      "type": "edge_case",
+      "prompt": "我们的 Kubernetes 集群里 Pod 调度总是不均衡，是该用 bin packing 还是 spread？",
+      "expected_behavior": "可弱激活 scheduling-policy-design，但需明确告知用户：本 skill 主要针对 CPU 时间片调度（周转/响应/公平性），Kubernetes Pod 调度属于资源放置（placement）问题，虽然可借用部分权衡思维，但具体机制（如节点亲和性、污点容忍）超出本 skill 范围。",
+      "notes": "边界: 涉及"调度"一词但属于更高层资源分配/放置问题，与 CPU 调度策略有概念重叠但技术域不同。"
+    }
+  ],
+  "minimum_pass_rate": 0.8,
+  "notes": "至少 3 条 should_trigger + 2 条 should_not_trigger + 1 条 edge_case。全部 should_not_trigger 必须通过 (诱饵容错为 0)。"
+}

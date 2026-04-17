@@ -1,0 +1,52 @@
+{
+  "skill": "data-system-reliability-assessment",
+  "version": "0.1.0",
+  "source_book": "《Designing Data-Intensive Applications》— Martin Kleppmann",
+  "darwin_compatible": true,
+  "test_cases": [
+    {
+      "id": "should-trigger-01",
+      "type": "should_trigger",
+      "prompt": "我们电商平台的订单系统明年预计流量要翻三倍，现在用的是单主 MySQL + Redis 缓存。我担心大促时数据库扛不住，也在纠结要不要做双活，RPO 和 RTO 怎么定比较合理？",
+      "expected_behavior": "应激活 data-system-reliability-assessment，进入 E 步骤：先明确架构快照（单主 MySQL + Redis），再量化负载（峰值 QPS、读写比），然后从 R/S/M 三维度评估风险并输出结构化报告。",
+      "notes": "典型触发场景：容量规划 + 容灾设计 + 技术选型，明确涉及可靠性（双活/RPO/RTO）和可扩展性（流量翻三倍）的权衡。"
+    },
+    {
+      "id": "should-trigger-02",
+      "type": "should_trigger",
+      "prompt": "团队最近上线了一个新服务，p99 延迟在 150ms 左右，但 p999 经常飙到 2s 以上。用户投诉集中在晚上 8-10 点。我想搞清楚是容量不够，还是有某个慢节点在拖后腿。",
+      "expected_behavior": "应激活 data-system-reliability-assessment，进入 E 步骤：量化性能基线（p99=150ms, p999=2s），识别尾部延迟恶化的根因（慢节点、级联依赖、同步阻塞点），并从可扩展性和可维护性角度给出改进建议。",
+      "notes": "典型触发场景：尾部延迟（p999）异常 + 负载敏感时段，属于负载-性能建模与分位数驱动优化的系统级评估。"
+    },
+    {
+      "id": "should-trigger-03",
+      "type": "should_trigger",
+      "prompt": "我们数据 pipeline 每天从上游业务库同步几千万条记录到数仓，最近发现下游报表偶尔出现明显错误，但上游没有告警。我怀疑是同步过程中数据丢了或者格式变了，想系统性地做一次可靠性评估。",
+      "expected_behavior": "应激活 data-system-reliability-assessment，进入 E 步骤：评估数据 pipeline 的可靠性（schema 验证、校验和、死信队列、数据质量审计）和可维护性（监控覆盖、根因分析难度），输出改进清单。",
+      "notes": "典型触发场景：数据质量异常 + 无上游告警，涉及可靠性中的数据完整性验证和可维护性中的监控/可观测性。"
+    },
+    {
+      "id": "should-not-trigger-01",
+      "type": "should_not_trigger",
+      "prompt": "帮我看看这条 SQL 怎么优化，EXPLAIN 显示走了全表扫描，我想加个联合索引。",
+      "expected_behavior": "不应激活本 skill，因为这是一个单一 SQL 查询优化问题，不涉及系统级架构评审、R/S/M 权衡或容量规划。",
+      "notes": "诱饵：提到了性能优化和全表扫描，但属于数据库查询调优层面，与 RSM 系统评估框架无关。"
+    },
+    {
+      "id": "should-not-trigger-02",
+      "type": "should_not_trigger",
+      "prompt": "Redis 主节点 CPU 飙到 100% 了，帮我分析一下可能的原因，是不是有大 key 或者热点 key？",
+      "expected_behavior": "不应激活本 skill，因为这是一个具体的运维排障请求，目标是定位单一组件的即时故障，而非进行系统化的 RSM 架构评估。",
+      "notes": "诱饵：提到了 Redis、性能问题和热点 key，但属于日常运维操作，不是架构评审或可靠性评估场景。"
+    },
+    {
+      "id": "edge-01",
+      "type": "edge_case",
+      "prompt": "我们在做一个新的推荐系统，技术栈还没定，目前在对比 ClickHouse、Doris 和 StarRocks。主要考虑查询性能和运维复杂度，数据量大概每天 10TB。",
+      "expected_behavior": "可以激活 data-system-reliability-assessment，但应聚焦于技术选型对 R/S/M 的长期影响（可扩展性：10TB/天的增长路径；可维护性：社区生态、运维工具链、团队学习成本；可靠性：数据副本、故障恢复），而不是陷入具体引擎的功能对比。",
+      "notes": "边界：这是一个技术选型问题，看似接近纯信息查询，但因为涉及长期架构决策和 R/S/M 权衡，属于 skill 的合理应用范围，但需要主动引导到框架维度而非产品功能清单。"
+    }
+  ],
+  "minimum_pass_rate": 0.8,
+  "notes": "至少 3 条 should_trigger + 2 条 should_not_trigger + 1 条 edge_case。全部 should_not_trigger 必须通过 (诱饵容错为 0)。"
+}

@@ -1,0 +1,52 @@
+{
+  "skill": "congestion-control-aimd",
+  "version": "0.1.0",
+  "source_book": "Computer Networking: A Top-Down Approach — Kurose & Ross",
+  "darwin_compatible": true,
+  "test_cases": [
+    {
+      "id": "should-trigger-01",
+      "type": "should_trigger",
+      "prompt": "我们的微服务调用下游 API 时，下游容量不太稳定。我想设计一个客户端自动探测它容量上限的机制，遇到延迟升高或返回 503 的时候能自动降速，恢复后再慢慢涨回来。",
+      "expected_behavior": "应激活 congestion-control-aimd，并引导用户将 TCP 的 AIMD 机制（cwnd、ssthresh、慢启动、拥塞避免、快速恢复）映射到微服务客户端的并发度/速率控制上。",
+      "notes": "典型的 AIMD 应用场景：共享资源、容量未知、需要反馈驱动的速率调节。"
+    },
+    {
+      "id": "should-trigger-02",
+      "type": "should_trigger",
+      "prompt": "Kafka consumer 拉取消息的速度怎么调比较好？现在处理延迟一高就容易积压，我想让它自己根据处理情况动态调整 fetch 量。",
+      "expected_behavior": "应激活 congestion-control-aimd，将 Kafka consumer 的 fetch 量/并发度类比为 cwnd，处理延迟或积压作为拥塞信号，给出 Additive Increase / Multiplicative Decrease 的调节策略。",
+      "notes": "流处理系统的背压与速率适配是 AIMD 框架的经典迁移场景。"
+    },
+    {
+      "id": "should-trigger-03",
+      "type": "should_trigger",
+      "prompt": "多个爬虫实例共享一个代理池，怎么保证它们公平分配带宽？遇到 429 的时候大家一起降速，没报错的时候再逐步提升并发。",
+      "expected_behavior": "应激活 congestion-control-aimd，讨论多个竞争源共享瓶颈时的公平收敛问题，给出基于 AIMD 的并发度控制方案（包括慢启动阈值和乘性衰减因子）。",
+      "notes": "公平带宽共享是 AIMD 的核心数学性质，直接对应用户诉求。"
+    },
+    {
+      "id": "should-not-trigger-01",
+      "type": "should_not_trigger",
+      "prompt": "TCP 三次握手的具体报文字节格式是什么？SYN 包的 flags 怎么设置？",
+      "expected_behavior": "不应激活本 skill，因为这是一个纯协议知识查询，没有将方法论迁移到任何系统设计或速率控制场景的意图。",
+      "notes": "诱饵: 纯知识点问答，缺乏"怎么做"或"设计"的迁移意图。"
+    },
+    {
+      "id": "should-not-trigger-02",
+      "type": "should_not_trigger",
+      "prompt": "我们的工业控制系统要求任何时刻都不能超过 1ms 的响应延迟，能不能用一个自增的探测算法来动态找最大并发数？",
+      "expected_behavior": "不应激活本 skill（或激活后应立即拒绝并跳转到边界警告），因为硬实时系统不允许试探性超载，AIMD 的探测过程本身就会引入瞬态延迟尖峰。",
+      "notes": "诱饵: 看似在问速率控制，但属于 AIMD 明确不适用的硬实时/零丢包场景。"
+    },
+    {
+      "id": "edge-01",
+      "type": "edge_case",
+      "prompt": "实时音视频通话里，网络抖动大的时候要不要用 TCP 的拥塞控制逻辑来调节码率？",
+      "expected_behavior": "应激活 congestion-control-aimd，但首先进入 B 段边界检查：指出 TCP 字节流抽象和 AIMD 重传机制会引入不可预测的延迟抖动，对实时音视频反而是负担；建议考虑 UDP + 应用层自定义拥塞控制（如 GCC/SCReAM），而非直接套用 TCP AIMD。",
+      "notes": "边界: 话题涉及拥塞控制，但场景（实时音视频 + TCP）属于书中明确警告的传输层与应用层语义不匹配反例。"
+    }
+  ],
+  "minimum_pass_rate": 0.8,
+  "notes": "3 条 should_trigger + 2 条 should_not_trigger + 1 条 edge_case。全部 should_not_trigger 必须通过 (诱饵容错为 0)。"
+}

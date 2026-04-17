@@ -1,0 +1,52 @@
+{
+  "skill": "abstraction-barrier-evolution",
+  "version": "0.1.0",
+  "source_book": "CS Core Thinking Meta-Framework — Hennessy & Patterson, Kurose & Ross, Kleppmann, Lehman et al., Arpaci-Dusseau, Stonebraker et al., Abelson & Sussman, La Rocca",
+  "darwin_compatible": true,
+  "test_cases": [
+    {
+      "id": "should-trigger-01",
+      "type": "should_trigger",
+      "prompt": "我们这个微服务的 API 响应格式直接映射了底层数据库表结构，现在表结构要改，下游十几个调用方全得跟着改。有没有办法把接口和实现解耦？",
+      "expected_behavior": "应激活 abstraction-barrier-evolution，帮助用户识别 API 与数据库 schema 的耦合点，设计适配层或 DTO/视图层来重构抽象屏障",
+      "notes": "典型正面场景：接口与实现强耦合导致 schema 变更传播到下游，需要抽象屏障和版本化策略"
+    },
+    {
+      "id": "should-trigger-02",
+      "type": "should_trigger",
+      "prompt": "我正在设计一个内部 DSL，想让用户组合出来的表达式还能继续被同一套操作组合。怎么保证这种闭包性质？",
+      "expected_behavior": "应激活 abstraction-barrier-evolution，从 SICP 的闭包性质出发，分析 DSL 的组合手段是否满足 closure property，并给出接口设计建议",
+      "notes": "典型正面场景：DSL 设计的抽象边界与闭包性质，属于接口-实现分离的元语言抽象范畴"
+    },
+    {
+      "id": "should-trigger-03",
+      "type": "should_trigger",
+      "prompt": "团队打算把 OLTP 数据库从 MySQL 迁移到 PostgreSQL，但业务代码里写满了 MySQL 方言 SQL 和特定字段名。怎么设计迁移路径才能不中断业务？",
+      "expected_behavior": "应激活 abstraction-barrier-evolution，诊断逻辑层与物理存储层的耦合，建议引入仓库模式/DAO 层、视图或查询抽象层，制定渐进式迁移策略",
+      "notes": "典型正面场景：数据库物理独立性缺失，需要接口-实现分离来支撑存储引擎替换"
+    },
+    {
+      "id": "should-not-trigger-01",
+      "type": "should_not_trigger",
+      "prompt": "Python 的 dataclass 和 pydantic BaseModel 在性能上有什么区别？我该选哪个？",
+      "expected_behavior": "不应激活本 skill，因为这是一个具体语言特性的语法/性能对比问题，没有涉及抽象屏障设计、接口-实现分离或长期演化策略",
+      "notes": "诱饵: 具体语言工具选型，与抽象屏障无关"
+    },
+    {
+      "id": "should-not-trigger-02",
+      "type": "should_not_trigger",
+      "prompt": "帮我写一段一次性脚本，把 CSV 里的用户数据清洗后插进数据库。不用考虑以后维护。",
+      "expected_behavior": "不应激活本 skill，因为用户明确声明这是一次性脚本且不需要长期维护，抽象屏障和演化策略在此场景不适用",
+      "notes": "诱饵: 一次性脚本，明确排除长期演化和接口治理需求"
+    },
+    {
+      "id": "edge-01",
+      "type": "edge_case",
+      "prompt": "我们在做一个短期 MVP，老板说先快速上线，三个月后再重构。但我担心现在的接口设计会锁死后续架构选择。",
+      "expected_behavior": "可以激活本 skill，但应聚焦于"最小可演化的接口设计"——在短期交付约束下，给出最低成本的抽象屏障（如简单的适配层、版本前缀、避免暴露内部 ID 结构），而不是推荐完整的分层架构",
+      "notes": "边界: 时间约束与长期演化的张力。用户有演化意识但资源受限，属于 skill 的适用边界，需要调整建议的重量级"
+    }
+  ],
+  "minimum_pass_rate": 0.8,
+  "notes": "至少 3 条 should_trigger + 2 条 should_not_trigger + 1 条 edge_case。全部 should_not_trigger 必须通过 (诱饵容错为 0)。"
+}

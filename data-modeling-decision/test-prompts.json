@@ -1,0 +1,52 @@
+{
+  "skill": "data-modeling-decision",
+  "version": "0.1.0",
+  "source_book": "Designing Data-Intensive Applications — Martin Kleppmann; Readings in Database Systems — Stonebraker et al.",
+  "darwin_compatible": true,
+  "test_cases": [
+    {
+      "id": "should-trigger-01",
+      "type": "should_trigger",
+      "prompt": "我们团队正在为一个社交网络平台做数据库选型。用户之间有关注关系，帖子有标签和评论，还需要做推荐算法中的好友关系遍历。我在犹豫是用 PostgreSQL 还是 Neo4j，或者两者一起用？",
+      "expected_behavior": "应激活 data-modeling-decision，引导用户分析实体关系模式（多对多关注、帖子-标签-评论的互联程度），评估图遍历查询的必要性，并给出关系型+图模型共存或多模型架构的推荐",
+      "notes": "典型的数据模型选型场景，涉及关系型 vs 图模型、多对多关系、路径遍历查询"
+    },
+    {
+      "id": "should-trigger-02",
+      "type": "should_trigger",
+      "prompt": "我们的业务 schema 变化特别快，产品经理每周都要加新字段。DBA 坚持要用 MySQL 定死 schema，但开发想上 MongoDB。怎么权衡 schema 灵活性和数据质量？",
+      "expected_behavior": "应激活 data-modeling-decision，分析文档模型的 schema 灵活性优势与弱 schema 的长期治理风险，帮助用户基于演化需求和数据一致性要求做出决策",
+      "notes": "触发信号明确：schema 灵活性 vs 强 schema 的权衡，文档模型 vs 关系模型"
+    },
+    {
+      "id": "should-trigger-03",
+      "type": "should_trigger",
+      "prompt": "同一个数据集，OLTP 用行存，但分析查询需要列存。C-Store 那种多投影设计对我们有借鉴意义吗？我们是不是也该维护多个物理视图？",
+      "expected_behavior": "应激活 data-modeling-decision，引用 C-Store/Vertica 案例，分析列式存储与多投影设计如何匹配分析型查询负载，并讨论多物理视图的维护成本",
+      "notes": "涉及列存、多投影、OLTP vs OLAP 的数据布局选择，属于数据模型与存储抽象的决策"
+    },
+    {
+      "id": "should-not-trigger-01",
+      "type": "should_not_trigger",
+      "prompt": "我的 PostgreSQL 查询执行计划里出现了 Nested Loop Join，但表很大，我想让它改成 Hash Join。该怎么加 hint？",
+      "expected_behavior": "不应激活 data-modeling-decision，因为这是一个具体数据库的查询优化/调优问题，与数据模型选择和抽象决策无关",
+      "notes": "诱饵：看似与数据库相关，但本质是具体 SQL 执行计划调优，不属于数据模型选型范畴"
+    },
+    {
+      "id": "should-not-trigger-02",
+      "type": "should_not_trigger",
+      "prompt": "在分布式系统中，Paxos 和 Raft 到底该选哪个？我们的核心诉求是高可用和强一致性。",
+      "expected_behavior": "不应激活 data-modeling-decision，因为讨论的是分布式共识算法/一致性协议选择，与数据模型、schema 设计、查询语言无关",
+      "notes": "诱饵：分布式系统架构决策，但属于一致性/共识领域，而非数据模型领域"
+    },
+    {
+      "id": "edge-01",
+      "type": "edge_case",
+      "prompt": "我们有一个电商系统，商品和订单用 MySQL 存，但想给商品加推荐关系网络，所以在考虑要不要把商品数据同步到图数据库。这算数据模型问题还是分布式数据同步问题？",
+      "expected_behavior": "应激活 data-modeling-decision，但需明确边界：先帮助用户判断商品-推荐关系是否值得引入图模型（数据模型决策），再简要提及多模型共存下的同步机制，但不深入分布式一致性协议细节",
+      "notes": "边界：同时涉及数据模型选择（是否上图数据库）和分布式同步，应以数据模型决策为主，同步机制为辅"
+    }
+  ],
+  "minimum_pass_rate": 0.8,
+  "notes": "至少 3 条 should_trigger + 2 条 should_not_trigger + 1 条 edge_case。全部 should_not_trigger 必须通过 (诱饵容错为 0)。"
+}

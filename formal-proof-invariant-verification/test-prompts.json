@@ -1,0 +1,52 @@
+{
+  "skill": "formal-proof-invariant-verification",
+  "version": "0.1.0",
+  "source_book": "Mathematics for Computer Science — Lehman et al. / SICP — Abelson & Sussman / OSTEP — Arpaci-Dusseau",
+  "darwin_compatible": true,
+  "test_cases": [
+    {
+      "id": "should-trigger-01",
+      "type": "should_trigger",
+      "prompt": "帮我用数学归纳法证明这个递归快速排序算法在所有输入下都能正确终止并返回有序数组",
+      "expected_behavior": "应激活 formal-proof-invariant-verification，并引导用户建立 P(n) 谓词、验证基例（空数组/单元素）、推导归纳步（分区后子问题规模减小），最终给出完整的正确性证明骨架",
+      "notes": "正面场景：明确的递归算法正确性证明需求，核心关键词为'数学归纳法''证明''所有输入''正确终止'"
+    },
+    {
+      "id": "should-trigger-02",
+      "type": "should_trigger",
+      "prompt": "我设计了一个分布式锁协议，怎么证明它在网络分区时不会脑裂？能不能用不变量来分析？",
+      "expected_behavior": "应激活 formal-proof-invariant-verification，将协议建模为状态机，定义 preserved invariant（如'任意时刻只有一个节点持有有效租约'），验证初始状态和分区下的状态转移，最终给出安全性结论",
+      "notes": "正面场景：分布式协议的安全性验证需求，核心关键词为'证明''不变量''网络分区''脑裂''安全性'"
+    },
+    {
+      "id": "should-trigger-03",
+      "type": "should_trigger",
+      "prompt": "这个二分查找的循环 invariant 应该怎么写？我总是搞不清边界条件，特别是 left <= right 和 left < right 的区别",
+      "expected_behavior": "应激活 formal-proof-invariant-verification，帮助用户定义循环不变量（如'目标元素若存在则必在 [left, right] 范围内'），区分两种边界写法对应的终止条件和后条件，并验证边界输入（空数组、单元素、目标不存在）",
+      "notes": "正面场景：循环不变量推导与边界条件验证，核心关键词为'循环 invariant''边界条件''二分查找'"
+    },
+    {
+      "id": "should-not-trigger-01",
+      "type": "should_not_trigger",
+      "prompt": "这段 Python 代码报 IndexError，帮我看看是哪里越界了",
+      "expected_behavior": "不应激活本 skill，因为这是一个纯代码调试/语法错误排查问题，没有形式化验证或归纳证明的需求",
+      "notes": "诱饵: 代码报错调试，看似涉及'边界'但实际是运行时错误定位，不需要数学证明框架"
+    },
+    {
+      "id": "should-not-trigger-02",
+      "type": "should_not_trigger",
+      "prompt": "我想优化这个数据库查询，EXPLAIN 显示全表扫描，怎么加索引能让它快 10 倍？",
+      "expected_behavior": "不应激活本 skill，因为用户的核心诉求是性能优化和索引设计，属于定量性能分析框架的范畴，与正确性证明无关",
+      "notes": "诱饵: 性能优化问题，虽然可能涉及'分析'但目标是速度而非正确性验证"
+    },
+    {
+      "id": "edge-01",
+      "type": "edge_case",
+      "prompt": "我用随机 pivot 实现了一个选择算法，能不能分析一下它的期望时间复杂度？",
+      "expected_behavior": "应激活 formal-proof-invariant-verification，因为随机化算法的期望分析属于本 skill 的概率方法与期望线性性范畴。agent 应使用指示随机变量分解和期望线性性给出 E[T(n)] = O(n) 的推导，同时明确说明这是期望行为而非最坏情况保证",
+      "notes": "边界: 用户没有明确说'证明'二字，但提到了'随机'和'期望复杂度'，这属于形式化验证框架中的概率分析子领域，应当激活"
+    }
+  ],
+  "minimum_pass_rate": 0.8,
+  "notes": "至少 3 条 should_trigger + 2 条 should_not_trigger + 1 条 edge_case。全部 should_not_trigger 必须通过 (诱饵容错为 0)。"
+}

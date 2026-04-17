@@ -1,0 +1,52 @@
+{
+  "skill": "reliable-transport-arq",
+  "version": "0.1.0",
+  "source_book": "Computer Networking: A Top-Down Approach — Kurose & Ross; Operating Systems: Three Easy Pieces — Arpaci-Dusseau",
+  "darwin_compatible": true,
+  "test_cases": [
+    {
+      "id": "should-trigger-01",
+      "type": "should_trigger",
+      "prompt": "我正在设计一个无人机与地面站之间的通信协议，链路不稳定，经常丢包和乱序。我应该怎么设计ACK、重传和超时机制来保证数据可靠传输？",
+      "expected_behavior": "应激活 reliable-transport-arq，进入E步骤：诊断故障模式→选择ARQ变体→设计序列号与ACK语义→设计定时器与重传策略→设计滑动窗口→输出状态机与边界警告",
+      "notes": "典型正面场景：不可靠信道+自定义协议+明确提及ACK/重传/超时三元组"
+    },
+    {
+      "id": "should-trigger-02",
+      "type": "should_trigger",
+      "prompt": "TCP的快速重传和超时重传有什么区别？Jacobson的RTO算法具体怎么计算EstimatedRTT和DevRTT？",
+      "expected_behavior": "应激活 reliable-transport-arq，重点执行E步骤4（定时器与重传策略），解释快速重传触发条件、动态RTO公式及Karn算法",
+      "notes": "正面场景：用户直接询问ARQ框架内的核心专业机制"
+    },
+    {
+      "id": "should-trigger-03",
+      "type": "should_trigger",
+      "prompt": "我们的工业物联网设备通过RS-485总线通信，偶尔有比特错误。想用滑动窗口提高吞吐，但接收方缓存很小。Go-Back-N和Selective Repeat该怎么选？序列号位数怎么定？",
+      "expected_behavior": "应激活 reliable-transport-arq，执行E步骤2（选择ARQ变体）和步骤3（序列号空间设计），对比GBN与SR在缓存受限场景下的优劣，并给出2^k ≥ N+1或2^k ≥ 2N的约束推导",
+      "notes": "正面场景：嵌入式不可靠信道+窗口协议+序列号设计的具体工程决策"
+    },
+    {
+      "id": "should-not-trigger-01",
+      "type": "should_not_trigger",
+      "prompt": "TCP粘包问题怎么解决？我的应用层消息被合并成一个流了，接收端解析不到完整的消息边界。",
+      "expected_behavior": "不应激活 reliable-transport-arq，因为问题聚焦于应用层消息边界/帧定界，属于抽象边界设计（abstract-boundary-design）的范畴，而非ACK-重传-超时状态机",
+      "notes": "诱饵：与TCP相关，但属于应用层语义不匹配（ce07），不是可靠传输机制设计问题"
+    },
+    {
+      "id": "should-not-trigger-02",
+      "type": "should_not_trigger",
+      "prompt": "我们的视频会议系统在网络抖动时卡顿严重，是不是应该把UDP换成TCP来保证不丢包？",
+      "expected_behavior": "不应激活 reliable-transport-arq，因为实时音视频场景对延迟敏感，不应使用TCP/ARQ；应建议UDP+FEC或自适应码率，并引用B段边界说明",
+      "notes": "诱饵：提到可靠传输，但属于ARQ的明确反场景（实时性优先于可靠性）"
+    },
+    {
+      "id": "edge-01",
+      "type": "edge_case",
+      "prompt": "我在做一个卫星通信系统，RTT高达600ms，带宽还可以。想用TCP传遥测数据，但吞吐很低。应该怎么优化？",
+      "expected_behavior": "应激活 reliable-transport-arq，但需同时指出TCP在超高RTT场景下的局限（B段盲点：DTN/卫星网络），重点分析BDP与窗口大小的关系，建议增大初始窗口、启用TCP Hybla或考虑基于存储-转发的延迟容忍网络架构",
+      "notes": "边界：问题在ARQ框架内，但超出传统教材覆盖范围，需要结合B段的时代局限给出回答"
+    }
+  ],
+  "minimum_pass_rate": 0.8,
+  "notes": "3条should_trigger + 2条should_not_trigger + 1条edge_case。全部should_not_trigger必须通过（诱饵容错为0）。"
+}

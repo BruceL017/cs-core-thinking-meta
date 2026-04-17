@@ -1,0 +1,59 @@
+{
+  "skill": "metalinguistic-abstraction",
+  "version": "0.1.0",
+  "source_book": "Structure and Interpretation of Computer Programs — Abelson & Sussman",
+  "darwin_compatible": true,
+  "test_cases": [
+    {
+      "id": "should-trigger-01",
+      "type": "should_trigger",
+      "prompt": "我想为我们的风控规则设计一个内嵌 DSL，让业务同学能用类似 'score > 500 AND region IN [A, B]' 的语法写策略，而不是直接写 Python。该怎么设计这个 DSL 的语法树和求值器？",
+      "expected_behavior": "应激活 metalinguistic-abstraction，分析 DSL 设计需求，解释 homoiconicity/AST/解释器分层，并给出求值器骨架代码",
+      "notes": "典型 DSL 设计场景，涉及程序即数据、解释器实现"
+    },
+    {
+      "id": "should-trigger-02",
+      "type": "should_trigger",
+      "prompt": "SICP 第4章的元循环求值器我看了好几遍还是不太理解 eval 和 apply 到底是怎么互相调用的，能不能用 Python 给我写一个最简版本？",
+      "expected_behavior": "应激活 metalinguistic-abstraction，解释 eval-apply 循环和环境模型，并用 Python 给出最小可运行的元循环求值器实现",
+      "notes": "直接指向元循环解释器核心概念"
+    },
+    {
+      "id": "should-trigger-03",
+      "type": "should_trigger",
+      "prompt": "我们系统里有好几种数值积分方法（矩形法、梯形法、Simpson 法），代码结构几乎一样，只是求函数值的点不同。能不能用高阶过程把它们抽象成一个统一的积分框架？",
+      "expected_behavior": "应激活 metalinguistic-abstraction，解释高阶过程与闭包性质，给出将积分方法抽象为"策略函数"参数的代码示例",
+      "notes": "高阶过程消除重复模式的经典场景"
+    },
+    {
+      "id": "should-trigger-04",
+      "type": "should_trigger",
+      "prompt": "我在学 Haskell 的惰性求值，不太理解为什么 'take 5 [1..]' 不会无限循环。能不能用 Python 生成器或者 SICP 的 stream 概念给我讲讲背后的原理？",
+      "expected_behavior": "应激活 metalinguistic-abstraction，解释 delay/force 或 thunk 机制，说明惰性流如何表示无穷序列",
+      "notes": "惰性求值与无穷数据结构"
+    },
+    {
+      "id": "should-not-trigger-01",
+      "type": "should_not_trigger",
+      "prompt": "Python 的 lambda 表达式怎么写？给我举个例子。",
+      "expected_behavior": "不应激活本 skill，因为用户只是询问具体语法，不涉及抽象设计、语义模型或元语言抽象",
+      "notes": "诱饵: 纯语法查询，无设计/语义深度"
+    },
+    {
+      "id": "should-not-trigger-02",
+      "type": "should_not_trigger",
+      "prompt": "我们的微服务架构现在遇到了性能瓶颈，QPS 上不去，帮我分析一下是不是该从单体改成微服务？",
+      "expected_behavior": "不应激活本 skill，因为问题属于系统架构选型和性能优化，与语言语义、解释器、高阶过程无关",
+      "notes": "诱饵: 系统架构/性能优化问题，领域完全不相关"
+    },
+    {
+      "id": "edge-01",
+      "type": "edge_case",
+      "prompt": "我在写 React 组件，发现高阶组件（HOC）和 render props 都能实现逻辑复用，但代码越来越绕。这算不算过度使用高阶过程？",
+      "expected_behavior": "应激活本 skill，从"高阶过程/闭包性质"的角度分析 HOC 和 render props 的抽象本质，同时指出状态过早引入和复杂特性替代清晰抽象的风险",
+      "notes": "边界: 虽然使用了"高阶组件"这一现代前端概念，但其本质仍是高阶过程与组合抽象，属于本 skill 的合理延伸"
+    }
+  ],
+  "minimum_pass_rate": 0.8,
+  "notes": "4 条 should_trigger + 2 条 should_not_trigger + 1 条 edge_case。全部 should_not_trigger 必须通过 (诱饵容错为 0)。"
+}

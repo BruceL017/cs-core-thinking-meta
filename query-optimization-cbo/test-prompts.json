@@ -1,0 +1,52 @@
+{
+  "skill": "query-optimization-cbo",
+  "version": "0.1.0",
+  "source_book": "Readings in Database Systems — Stonebraker et al.",
+  "darwin_compatible": true,
+  "test_cases": [
+    {
+      "id": "should-trigger-01",
+      "type": "should_trigger",
+      "prompt": "EXPLAIN 显示优化器走了全表扫描，但明明有索引。ANALYZE 之后查询突然变快了。这是怎么回事？",
+      "expected_behavior": "应激活 query-optimization-cbo，并诊断为统计信息过时导致 CBO 错误估计基数，进而选择了 Seq Scan 而非 Index Scan。建议检查 last_analyze 时间、采样率和直方图覆盖情况。",
+      "notes": "典型触发信号：执行计划异常 + 统计信息更新后行为变化，直接指向 CBO 的代价估算与统计信息依赖。"
+    },
+    {
+      "id": "should-trigger-02",
+      "type": "should_trigger",
+      "prompt": "这个 8 表连接的 SQL，优化器选的连接顺序导致中间结果爆炸，执行时间从几秒变成十几分钟。System R 的 Selinger 论文里连接顺序是怎么枚举的？",
+      "expected_behavior": "应激活 query-optimization-cbo，并解释 System R 自底向上动态规划（DPsub/DPsize）如何枚举连接顺序，指出表数增加时搜索空间的阶乘增长，以及商用优化器如何通过启发式剪枝（如限制 Bushy Tree 深度、禁止笛卡尔积）控制优化时间。",
+      "notes": "直接引用 System R / Selinger，涉及连接顺序与搜索空间，属于核心触发场景。"
+    },
+    {
+      "id": "should-trigger-03",
+      "type": "should_trigger",
+      "prompt": "我们在自研 SQL 引擎，优化器该用 Cascades 还是传统动态规划？基数估计偏差太大，导致选了 hash join 而不是 merge join。",
+      "expected_behavior": "应激活 query-optimization-cbo，并对比 Cascades（自顶向下、分支定界、规则驱动）与传统 System R DP（自底向上、枚举驱动）的优劣，同时分析基数估计误差的来源（独立假设失效、直方图桶数不足、关联列未收集多列统计信息）及其在连接算法选择中的影响。",
+      "notes": "涉及引擎架构设计（Cascades vs DP）和基数估计偏差，属于 A2 中的高级触发场景。"
+    },
+    {
+      "id": "should-not-trigger-01",
+      "type": "should_not_trigger",
+      "prompt": "PostgreSQL 的窗口函数语法里，ROWS BETWEEN 和 RANGE BETWEEN 有什么区别？",
+      "expected_behavior": "不应激活本 skill，因为这是一个纯 SQL 语法问题，与查询优化器的代价模型、搜索空间或执行计划选择无关。",
+      "notes": "诱饵：使用了数据库/PostgreSQL 关键词，但问题是纯语法用法，不涉及 CBO。"
+    },
+    {
+      "id": "should-not-trigger-02",
+      "type": "should_not_trigger",
+      "prompt": "我们的 MySQL 数据库最近特别慢，用户经常超时。你帮我看看是不是该加内存？",
+      "expected_behavior": "不应激活本 skill，因为用户没有提供 EXPLAIN 输出、表结构、查询模式或统计信息，属于泛泛的性能抱怨，无法进入 CBO 层面的诊断。",
+      "notes": "诱饵：提到数据库慢，但缺乏任何执行计划或优化器相关信息，属于边界中明确的反场景。"
+    },
+    {
+      "id": "edge-01",
+      "type": "edge_case",
+      "prompt": "ClickHouse 的查询为什么比 PostgreSQL 快这么多？是因为它的优化器更先进吗？",
+      "expected_behavior": "可以弱激活 query-optimization-cbo，但回答重心应放在 ClickHouse 的列式存储、向量化执行和 MergeTree 引擎的物理布局优势上，仅在涉及 CBO 的部分（如投影选择、预聚合优化）简要提及优化器作用，避免过度归因于 CBO。",
+      "notes": "边界：问题涉及查询性能差异，但主要驱动因素是存储引擎和执行模型，而非优化器。需要区分 CBO 与物理架构的贡献。"
+    }
+  ],
+  "minimum_pass_rate": 0.8,
+  "notes": "至少 3 条 should_trigger + 2 条 should_not_trigger + 1 条 edge_case。全部 should_not_trigger 必须通过 (诱饵容错为 0)。"
+}

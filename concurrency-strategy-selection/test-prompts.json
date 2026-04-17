@@ -1,0 +1,52 @@
+{
+  "skill": "concurrency-strategy-selection",
+  "version": "0.1.0",
+  "source_book": "Operating Systems: Three Easy Pieces / Readings in Database Systems / Designing Data-Intensive Applications",
+  "darwin_compatible": true,
+  "test_cases": [
+    {
+      "id": "should-trigger-01",
+      "type": "should_trigger",
+      "prompt": "我们正在设计一个电商库存系统，日均百万订单，大促期间热点 SKU 的写冲突非常激烈。现在团队在争论是用 MySQL 的 InnoDB 行锁（悲观锁）还是基于版本号的乐观并发控制（OCC）。你能给出一个系统的选型框架吗？",
+      "expected_behavior": "应激活 concurrency-strategy-selection，并执行 E 步骤：量化工作负载特征（读写比例、冲突概率、事务长度），评估悲观策略（2PL/行锁）与乐观策略（OCC/MVCC）的成本，最终给出决策矩阵和具体实现建议。",
+      "notes": "典型正面场景：高并发数据库事务，明确在悲观锁与乐观并发控制之间做选型，涉及热点冲突和事务特征。"
+    },
+    {
+      "id": "should-trigger-02",
+      "type": "should_trigger",
+      "prompt": "我们的分布式账本服务跨三个数据中心，网络延迟在 50-100ms。目前使用分布式锁做事务串行化，但延迟太高了。在考虑换成 SSI 或者 MVCC，但不确定冲突检测该怎么做。有什么建议？",
+      "expected_behavior": "应激活 concurrency-strategy-selection，分析分布式高延迟场景下悲观锁的劣势，评估 SSI（Serializable Snapshot Isolation）和 MVCC 的适用性，给出基于版本向量或快照的乐观策略建议。",
+      "notes": "正面场景：分布式锁因网络延迟成为瓶颈，需要在悲观串行化与乐观多版本策略之间做选择。"
+    },
+    {
+      "id": "should-trigger-03",
+      "type": "should_trigger",
+      "prompt": "这个 B+树索引的并发访问该用读写锁还是无锁结构？读操作占 95%，但写操作会修改树结构（分裂/合并）。怎么评估？",
+      "expected_behavior": "应激活 concurrency-strategy-selection，将并发数据结构的设计纳入框架：评估读多写少 workload 下悲观锁（读写锁、层次锁）与乐观/无锁策略的权衡，给出锁粒度建议。",
+      "notes": "正面场景：并发数据结构的锁策略选型，涉及读写比例和结构修改冲突。"
+    },
+    {
+      "id": "should-not-trigger-01",
+      "type": "should_not_trigger",
+      "prompt": "请解释一下什么是死锁，以及如何预防死锁。",
+      "expected_behavior": "不应激活 concurrency-strategy-selection，因为用户仅询问概念定义和预防方法，没有涉及悲观/乐观并发控制策略的选型决策。",
+      "notes": "诱饵：概念定义查询。虽然与并发相关，但不需要启动策略选择框架。"
+    },
+    {
+      "id": "should-not-trigger-02",
+      "type": "should_not_trigger",
+      "prompt": "帮我写一段 Python 代码，用 threading.Lock 实现一个线程安全的计数器。",
+      "expected_behavior": "不应激活 concurrency-strategy-selection，因为用户请求的是具体代码实现，而非在多种并发控制策略之间进行选型分析。",
+      "notes": "诱饵：纯实现请求。没有 workload 特征、没有策略比较、没有决策需求。"
+    },
+    {
+      "id": "edge-01",
+      "type": "edge_case",
+      "prompt": "我们的系统 99% 的请求是只读分析查询，但每天有几次关键的对账任务必须严格串行化。主库用 Read Committed，对账任务单独跑在 Serializable 会话里。这种混合策略是否合理，有没有隐患？",
+      "expected_behavior": "应激活 concurrency-strategy-selection，因为用户正在评估混合隔离策略的合理性。agent 应分析混合策略下的异常风险（如写偏斜、幻读向只读查询的渗透），并给出锁粒度、事务长度和回退条件的建议。",
+      "notes": "边界：不是单一策略的纯粹选型，而是混合策略的评估与风险分析，仍属于本 skill 的核心问题域。"
+    }
+  ],
+  "minimum_pass_rate": 0.8,
+  "notes": "至少 3 条 should_trigger + 2 条 should_not_trigger + 1 条 edge_case。全部 should_not_trigger 必须通过 (诱饵容错为 0)。"
+}

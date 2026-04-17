@@ -1,0 +1,52 @@
+{
+  "skill": "quantitative-performance-analysis",
+  "version": "0.1.0",
+  "source_book": "CS Core Thinking Meta-Framework — Hennessy & Patterson, Kleppmann et al.",
+  "darwin_compatible": true,
+  "test_cases": [
+    {
+      "id": "should-trigger-01",
+      "type": "should_trigger",
+      "prompt": "我想把用户画像查询从 MySQL 迁到 Redis，但不确定能提升多少 QPS，迁移成本是否值得？",
+      "expected_behavior": "应激活 quantitative-performance-analysis，帮助用户建立当前 MySQL 查询的基线（延迟分布、CPU/IO 占比），用 Amdahl 定律评估 Redis 替换后的理论加速上限，并对比迁移成本给出是否值得做的量化建议",
+      "notes": "典型的架构选型+性能优化决策场景，用户明确在比较两个方案并需要量化依据"
+    },
+    {
+      "id": "should-trigger-02",
+      "type": "should_trigger",
+      "prompt": "我们的推荐服务 p99 延迟从 80ms 涨到了 250ms，团队有人建议加 GPU 加速推理，有人建议改批大小，我该怎么判断哪个方向是对的？",
+      "expected_behavior": "应激活 quantitative-performance-analysis，指导用户先进行 profiling 拆解 CPU Time = IC × CPI × Cycle Time（或等价的应用层拆解：序列化、网络、推理、数据库），定位真正的瓶颈组件，再分别评估 GPU 加速和批大小调整的边际收益",
+      "notes": "瓶颈定位+多方案比较的复合场景，需要量化框架避免感性决策"
+    },
+    {
+      "id": "should-trigger-03",
+      "type": "should_trigger",
+      "prompt": "双十一要来了，我们的订单系统现在能扛 1w TPS，目标是 10w TPS。如果水平扩展，需要加多少台机器？如果做分库分表，扩展性会更好吗？",
+      "expected_behavior": "应激活 quantitative-performance-analysis，帮助用户建立负载-性能模型（负载参数：TPS、读写比、数据量；性能指标：吞吐量、延迟分位数），评估水平扩展的线性度限制（Amdahl/通信开销），并对比分库分表与纯水平扩展的量化收益",
+      "notes": "容量规划+扩展性评估的经典场景，需要 DDIA 的负载-性能建模"
+    },
+    {
+      "id": "should-not-trigger-01",
+      "type": "should_not_trigger",
+      "prompt": "Redis 的持久化机制 RDB 和 AOF 有什么区别？",
+      "expected_behavior": "不应激活本 skill，因为这是一个纯信息查询，用户没有面临性能优化、架构选型或容量规划的决策困境",
+      "notes": "诱饵: 提到了 Redis（一个性能相关技术），但本质是概念解释型问题，不需要定量分析框架"
+    },
+    {
+      "id": "should-not-trigger-02",
+      "type": "should_not_trigger",
+      "prompt": "我的 Python 脚本报了一个 IndexError，帮我看看这段代码哪里错了",
+      "expected_behavior": "不应激活本 skill，因为这是一个具体的代码 bug 调试请求，需要的是定位和修复错误，而非性能建模或加速上限评估",
+      "notes": "诱饵: 代码问题，但完全不属于性能优化或架构选型的范畴"
+    },
+    {
+      "id": "edge-01",
+      "type": "edge_case",
+      "prompt": "我在做一个新的内部工具，现在只有 10 个用户，但同事说要用微服务+Kafka+Redis 保证以后能扩展到 10 万用户。我觉得有点过度设计，但不知道怎么反驳。",
+      "expected_behavior": "应激活本 skill，但重点不是做复杂的性能建模，而是应用 Boundary 中的反例（ce30 过早优化）和 Amdahl/负载建模的基本思想，帮助用户说明：在缺乏基线测量和明确负载特征的情况下，为假设性的 10 万用户做预优化是低效的。输出应简洁，以决策劝阻和测量建议为主",
+      "notes": "边界: 这是一个关于'是否值得现在做优化'的决策，带有明显的过早优化色彩。skill 应该被激活，但执行路径会快速进入 Boundary 警告和基线建立建议，而不是深入的三元拆解"
+    }
+  ],
+  "minimum_pass_rate": 0.8,
+  "notes": "至少 3 条 should_trigger + 2 条 should_not_trigger + 1 条 edge_case。全部 should_not_trigger 必须通过 (诱饵容错为 0)。"
+}
