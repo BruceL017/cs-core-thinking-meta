@@ -178,7 +178,7 @@ cs-core-thinking-meta/
 
 本框架设计为可扩展。如果你读完第 9 本书并想加入新的 skill，建议按以下流程：
 
-1. **提取**：用 [`book2skill`](https://github.com/anthropics/claude-code) 方法论提取候选单元（frameworks / principles / cases / counter-examples / glossary）
+1. **提取**：用 [`cangjie-skill`](https://github.com/kangarooking/cangjie-skill) 方法论提取候选单元（frameworks / principles / cases / counter-examples / glossary）
 2. **验证**：通过三重验证（V1 跨域 / V2 预测力 / V3 独特性）
 3. **构造**：编写 `SKILL.md`（R/I/A1/A2/E/B 六段）+ `test-prompts.json`（Darwin 兼容格式）
 4. **注册**：在 `cs-core-thinking-router/SKILL.md` 的决策树中新增路由分支
