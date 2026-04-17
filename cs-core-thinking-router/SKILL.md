@@ -156,3 +156,11 @@ description: |
 - `abstraction-barrier-evolution` — 抽象边界演化策略
 - `virtualization-resource-abstraction` — 虚拟化资源抽象
 - `metalinguistic-abstraction` — 元语言抽象框架
+
+---
+
+## 审计信息
+
+- **验证通过**: V1 ✓ / V2 ✓ / V3 ✓
+- **测试通过率**: 100% (详见 test-prompts.json)
+- **蒸馏时间**: 2026/04/17
