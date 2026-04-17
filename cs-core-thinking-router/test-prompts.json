@@ -1,0 +1,54 @@
+{
+  "skill_name": "cs-core-thinking-router",
+  "should_trigger": [
+    {
+      "id": "router-01",
+      "prompt": "我们的系统明年流量要翻倍，现在主库延迟很高，p99 经常飙到 500ms，该加缓存还是分片？",
+      "expected_behavior": "路由到 quantitative-performance-analysis → data-system-reliability-assessment"
+    },
+    {
+      "id": "router-02",
+      "prompt": "数据库高并发下死锁频发，我们在纠结该用悲观锁还是换成 MVCC 的快照隔离？",
+      "expected_behavior": "路由到 concurrency-strategy-selection"
+    },
+    {
+      "id": "router-03",
+      "prompt": "设计一个跨地域的分布式 KV 存储，分区时该优先一致性还是可用性？CAP 怎么选？",
+      "expected_behavior": "路由到 distributed-consistency-decision"
+    },
+    {
+      "id": "router-04",
+      "prompt": "TCP 在高丢包环境下重传机制要怎么设计？滑动窗口和快速重传怎么配合？",
+      "expected_behavior": "路由到 layered-end-to-end-decision → reliable-transport-arq"
+    },
+    {
+      "id": "router-05",
+      "prompt": "我需要证明这个并发算法的正确性，怎么用不变量原理来做形式化验证？",
+      "expected_behavior": "路由到 formal-proof-invariant-verification → safety-liveness-properties"
+    }
+  ],
+  "should_not_trigger": [
+    {
+      "id": "router-neg-01",
+      "prompt": "帮我重启一下 Redis 服务，今天日志里好像有些报错。",
+      "expected_behavior": "不触发：属于日常运维操作"
+    },
+    {
+      "id": "router-neg-02",
+      "prompt": "用 React 写一个 Todo List 组件，要求支持拖拽排序。",
+      "expected_behavior": "不触发：纯前端 UI 实现"
+    },
+    {
+      "id": "router-neg-03",
+      "prompt": "写一段代码求斐波那契数列的第 n 项。",
+      "expected_behavior": "不触发：无上下文的单一算法题"
+    }
+  ],
+  "edge_cases": [
+    {
+      "id": "router-edge-01",
+      "prompt": "我们的分布式数据库查询慢，EXPLAIN 显示走了全表扫描，是索引问题还是网络分区导致的？",
+      "expected_behavior": "这是一个边界模糊问题，可能同时涉及 query-optimization-cbo 和 distributed-consistency-decision，router 应优先按主诉'查询慢'路由到 quantitative-performance-analysis → query-optimization-cbo，并提示可能需补充网络/一致性分析"
+    }
+  ]
+}
